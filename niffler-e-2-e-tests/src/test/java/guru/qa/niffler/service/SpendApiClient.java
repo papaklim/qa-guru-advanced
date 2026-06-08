@@ -3,31 +3,133 @@ package guru.qa.niffler.service;
 import guru.qa.niffler.api.SpendApi;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.CategoryJson;
+import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
-import lombok.SneakyThrows;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SpendApiClient implements SpendClient {
 
     private static final Config CFG = Config.getInstance();
 
-    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(CFG.spendUrl()).addConverterFactory(JacksonConverterFactory.create()).build();
+    private static final HttpLoggingInterceptor logging =
+            new HttpLoggingInterceptor(System.out::println)
+                    .setLevel(HttpLoggingInterceptor.Level.BODY);
+
+    private static final OkHttpClient httpClient = new OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build();
+
+    private final Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl(CFG.spendUrl())
+            .client(httpClient)
+            .addConverterFactory(JacksonConverterFactory.create())
+            .build();
 
     private final SpendApi spendApi = retrofit.create(SpendApi.class);
 
-
-    @SneakyThrows
     @Override
     public SpendJson createSpend(SpendJson spend) {
-        return spendApi.createSpend(spend).execute().body();
+        final Response<SpendJson> response;
+        try {
+            response = spendApi.createSpend(spend).execute();
+            assertEquals(201, response.code());
+            return response.body();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public SpendJson updateSpend(SpendJson spend) {
+        final Response<SpendJson> response;
+        try {
+            response = spendApi.updateSpend(spend).execute();
+            assertEquals(200, response.code());
+            return response.body();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public SpendJson getSpendById(Integer id) {
+        final Response<SpendJson> response;
+        try {
+            response = spendApi.getSpendById(id).execute();
+            assertEquals(200, response.code());
+            return response.body();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public List<SpendJson> getAllSpends(String username, CurrencyValues filterCurrency, String from, String to) {
+        final Response<List<SpendJson>> response;
+        try {
+            response = spendApi.getAllSpends(username, filterCurrency, from, to).execute();
+            assertEquals(200, response.code());
+            return response.body();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public void deleteSpend(String userName, List<String> ids) {
+        final Response<Void> response;
+        try {
+            response = spendApi.deleteSpend(userName, ids).execute();
+            assertEquals(202, response.code());
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
     }
 
     @Override
     public CategoryJson createCategory(CategoryJson category) {
-        throw new UnsupportedOperationException("Not implemented :(");
+        final Response<CategoryJson> response;
+        try {
+            response = spendApi.createCategory(category).execute();
+            assertEquals(200, response.code());
+            return response.body();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public CategoryJson updateCategory(CategoryJson category) {
+        final Response<CategoryJson> response;
+        try {
+            response = spendApi.updateCategory(category).execute();
+            assertEquals(200, response.code());
+            return response.body();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
+    }
+
+    @Override
+    public List<CategoryJson> getAllCategories(String username, Boolean excludeArchived) {
+        final Response<List<CategoryJson>> response;
+        try {
+            response = spendApi.getAllCategories().execute();
+            assertEquals(200, response.code());
+            return response.body();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
     }
 
     @Override

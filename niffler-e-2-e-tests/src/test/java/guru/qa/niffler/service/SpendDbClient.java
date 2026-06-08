@@ -2,15 +2,18 @@ package guru.qa.niffler.service;
 
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.CategoryJson;
+import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import java.sql.*;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -65,7 +68,28 @@ public class SpendDbClient implements SpendClient {
     }
   }
 
-  @Override
+    @Override
+    public SpendJson updateSpend(SpendJson spend) {
+        throw new UnsupportedOperationException("Not implemented :(");
+    }
+
+    @Override
+    public SpendJson getSpendById(Integer id) {
+        throw new UnsupportedOperationException("Not implemented :(");
+    }
+
+    @Override
+    public List<SpendJson> getAllSpends(String username, CurrencyValues filterCurrency, String from, String to) {
+        throw new UnsupportedOperationException("Not implemented :(");
+    }
+
+
+    @Override
+    public void deleteSpend(String userName, List<String> ids) {
+        throw new UnsupportedOperationException("Not implemented :(");
+    }
+
+    @Override
   public CategoryJson createCategory(CategoryJson category) {
     try {
       final JdbcTemplate jdbcTemplate = new JdbcTemplate(
@@ -101,7 +125,17 @@ public class SpendDbClient implements SpendClient {
     }
   }
 
-  @Override
+    @Override
+    public CategoryJson updateCategory(CategoryJson category) {
+        throw new UnsupportedOperationException("Not implemented :(");
+    }
+
+    @Override
+    public List<CategoryJson> getAllCategories(String username, Boolean excludeArchived) {
+        throw new UnsupportedOperationException("Not implemented :(");
+    }
+
+    @Override
   public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName, String username) {
     try {
       final JdbcTemplate jdbcTemplate = new JdbcTemplate(

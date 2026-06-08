@@ -13,4 +13,9 @@ public record CategoryJson(
     String username,
     @JsonProperty("archived")
     boolean archived) {
+
+    @Override
+    public String name() {
+        return name;
+    }
 }

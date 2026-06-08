@@ -12,6 +12,14 @@ public class MainPage {
     private final ElementsCollection tableRows = $$("#spendings tr");
     private final SelenideElement statBlock = $("#stat");
     private final SelenideElement spendingBlock = $("#spendings");
+    private final SelenideElement profileBtn = $("img[class^='MuiAvatar-img']");
+    private final ElementsCollection profileMenuItems = $$("ul[role=menu] > li[role=menuitem]");
+
+    public ProfilePage goToProfile() {
+        profileBtn.click();
+        profileMenuItems.get(0).click();
+        return new ProfilePage();
+    }
 
     public EditSpendingPage editSpending(String description) {
         tableRows.find(text(description)).$$("td").get(5).click();
