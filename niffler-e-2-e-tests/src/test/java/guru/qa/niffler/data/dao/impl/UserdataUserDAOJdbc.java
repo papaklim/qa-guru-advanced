@@ -1,0 +1,129 @@
+package guru.qa.niffler.data.dao.impl;
+
+import guru.qa.niffler.config.Config;
+import guru.qa.niffler.data.Databases;
+import guru.qa.niffler.data.dao.UserDataDAO;
+import guru.qa.niffler.data.entity.spend.user.UserEntity;
+import guru.qa.niffler.model.CurrencyValues;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Optional;
+import java.util.UUID;
+
+public class UserdataUserDAOJdbc implements UserDataDAO {
+    private static final Config CFG = Config.getInstance();
+
+    @Override
+    public UserEntity createUser(UserEntity user) {
+        try (Connection connection = Databases.connection(CFG.userDataJdbcUrl())) {
+            try (PreparedStatement ps = connection.prepareStatement(
+                " INSERT INTO \"user\" (username, currency, firstname, surname, photo, photo_small, full_name) " +
+                    "VALUES (?, ? , ?, ?, ?, ?, ?)",
+                PreparedStatement.RETURN_GENERATED_KEYS
+            )) {
+                ps.setString(1, user.getUsername());
+                ps.setString(2, user.getCurrency().name());
+                ps.setString(3, user.getFirstname());
+                ps.setString(4, user.getSurname());
+                ps.setObject(5, user.getPhoto());
+                ps.setObject(6, user.getPhotoSmall());
+                ps.setString(7, user.getFullname());
+
+                ps.execute();
+
+                final UUID generatedKey;
+
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedKey = rs.getObject("id", UUID.class);
+                    } else throw new SQLException("Can't find id in ResultSet");
+                }
+                user.setId(generatedKey);
+                return user;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    @Override
+    public Optional<UserEntity> findById(UUID id) {
+        try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
+            try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT * FROM \"user\" WHERE id = ?")) {
+                ps.setObject(1, id);
+
+                ps.execute();
+
+                try (ResultSet rs = ps.getResultSet()) {
+                    if (rs.next()) {
+                        UserEntity u = new UserEntity();
+                        u.setId(rs.getObject("id", UUID.class));
+                        u.setUsername(rs.getString("username"));
+                        u.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
+                        u.setFirstname(rs.getString("firstname"));
+                        u.setSurname(rs.getString("surname"));
+                        u.setFullname(rs.getString("full_name"));
+                        u.setPhoto(rs.getBytes("photo"));
+                        u.setPhotoSmall(rs.getBytes("photo_small"));
+
+                        return Optional.of(u);
+                    } else {
+                        return Optional.empty();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Optional<UserEntity> findByUsername(String username) {
+        try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
+            try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT * FROM \"user\" WHERE username = ?")) {
+                ps.setObject(1, username);
+
+                ps.execute();
+
+                try (ResultSet rs = ps.getResultSet()) {
+                    if (rs.next()) {
+                        UserEntity u = new UserEntity();
+                        u.setId(rs.getObject("id", UUID.class));
+                        u.setUsername(rs.getString("username"));
+                        u.setCurrency(CurrencyValues.valueOf(rs.getString("currency")));
+                        u.setFirstname(rs.getString("firstname"));
+                        u.setSurname(rs.getString("surname"));
+                        u.setFullname(rs.getString("full_name"));
+                        u.setPhoto(rs.getBytes("photo"));
+                        u.setPhotoSmall(rs.getBytes("photo_small"));
+
+                        return Optional.of(u);
+                    } else {
+                        return Optional.empty();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void delete(UserEntity user) {
+        try (Connection connection = Databases.connection(CFG.spendJdbcUrl())) {
+            try (PreparedStatement ps = connection.prepareStatement(
+                "DELETE FROM \"user\" WHERE id = ?")) {
+                ps.setObject(1, user.getId());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
