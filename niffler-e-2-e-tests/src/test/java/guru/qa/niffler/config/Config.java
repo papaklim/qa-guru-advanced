@@ -6,9 +6,21 @@ public interface Config {
     return LocalConfig.INSTANCE;
   }
 
+  String authUrl();
+
+  String authJdbcUrl();
+
   String frontUrl();
+
+  String UserDataUrl();
+
+  String UserDataJdbcUrl();
 
   String spendUrl();
 
   String spendJdbcUrl();
+
+  String currencyJdbcUrl();
+
+  String ghApiUrl();
 }
