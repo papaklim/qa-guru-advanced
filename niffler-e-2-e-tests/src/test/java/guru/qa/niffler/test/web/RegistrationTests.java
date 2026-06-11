@@ -2,11 +2,15 @@ package guru.qa.niffler.test.web;
 
 import com.codeborne.selenide.Selenide;
 import guru.qa.niffler.config.Config;
+import guru.qa.niffler.jupiter.annotation.DisabledByIssue;
+import guru.qa.niffler.jupiter.extension.BrowserExtension;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
 import guru.qa.niffler.page.RegisterPage;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(BrowserExtension.class)
 public class RegistrationTests {
 
     private static final Config CFG = Config.getInstance();
@@ -16,6 +20,7 @@ public class RegistrationTests {
     private final static String EXISTED_USER_ERROR_MESSAGE = "Username `%s` already exists";
     private final static String NOT_EQUAL_PASSWORDS_ERROR_MESSAGE = "Passwords should be equal";
 
+    @DisabledByIssue("1")
     @Test
     void shouldRegisterNewUser() {
         LoginPage loginPage = Selenide.open(CFG.frontUrl(), LoginPage.class);
@@ -46,7 +51,9 @@ public class RegistrationTests {
     void shouldShowErrorIfPasswordWithLengthLessThan3() {
         LoginPage loginPage = Selenide.open(CFG.frontUrl(), LoginPage.class);
         RegisterPage registerPage = loginPage.registerNewUser();
-        registerPage.submitRegistrationWithError(EXISTED_USERNAME, DUMMY_PASSWORD.substring(0, 2), DUMMY_PASSWORD.substring(0, 2));
+        registerPage.submitRegistrationWithError(
+            EXISTED_USERNAME, DUMMY_PASSWORD.substring(0, 2),
+            DUMMY_PASSWORD.substring(0, 2));
         registerPage.checkErrorMessage(ALLOWED_PASSWORD_ERROR_MESSAGE);
     }
 

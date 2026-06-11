@@ -1,6 +1,5 @@
-package guru.qa.niffler.service;
+package guru.qa.niffler.api;
 
-import guru.qa.niffler.api.SpendApi;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
@@ -21,19 +20,13 @@ public class SpendApiClient implements SpendClient {
 
     private static final Config CFG = Config.getInstance();
 
-    private static final HttpLoggingInterceptor logging =
-            new HttpLoggingInterceptor(System.out::println)
-                    .setLevel(HttpLoggingInterceptor.Level.BODY);
+    private static final HttpLoggingInterceptor logging = new HttpLoggingInterceptor(System.out::println).setLevel(
+        HttpLoggingInterceptor.Level.BODY);
 
-    private static final OkHttpClient httpClient = new OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .build();
+    private static final OkHttpClient httpClient = new OkHttpClient.Builder().addInterceptor(logging).build();
 
-    private final Retrofit retrofit = new Retrofit.Builder()
-            .baseUrl(CFG.spendUrl())
-            .client(httpClient)
-            .addConverterFactory(JacksonConverterFactory.create())
-            .build();
+    private final Retrofit retrofit = new Retrofit.Builder().baseUrl(CFG.spendUrl()).client(
+        httpClient).addConverterFactory(JacksonConverterFactory.create()).build();
 
     private final SpendApi spendApi = retrofit.create(SpendApi.class);
 

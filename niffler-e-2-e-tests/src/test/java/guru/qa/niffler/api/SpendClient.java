@@ -1,4 +1,4 @@
-package guru.qa.niffler.service;
+package guru.qa.niffler.api;
 
 import guru.qa.niffler.model.CategoryJson;
 import guru.qa.niffler.model.CurrencyValues;
