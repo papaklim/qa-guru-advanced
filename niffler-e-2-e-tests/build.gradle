@@ -126,6 +126,8 @@ dependencies {
     // Lombok
     testAnnotationProcessor "org.projectlombok:lombok:${project.ext.lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${project.ext.lombokVersion}"
+
+    allureRawResultElements files("build/allure-results")
 }
 
 tasks.withType(JavaCompile).configureEach {
