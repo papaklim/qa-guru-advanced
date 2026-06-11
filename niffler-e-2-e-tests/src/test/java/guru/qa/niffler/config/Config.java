@@ -12,9 +12,9 @@ public interface Config {
 
   String frontUrl();
 
-  String UserDataUrl();
+  String userDataUrl();
 
-  String UserDataJdbcUrl();
+  String userDataJdbcUrl();
 
   String spendUrl();
 

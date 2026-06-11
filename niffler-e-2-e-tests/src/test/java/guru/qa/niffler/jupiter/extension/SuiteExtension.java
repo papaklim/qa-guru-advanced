@@ -3,8 +3,6 @@ package guru.qa.niffler.jupiter.extension;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import guru.qa.niffler.jupiter.annotation.DisabledByIssue;
-
 public interface SuiteExtension extends BeforeAllCallback {
 
     /*
@@ -19,17 +17,17 @@ public interface SuiteExtension extends BeforeAllCallback {
     default void beforeAll(ExtensionContext context) throws Exception {
         final ExtensionContext rooContext = context.getRoot();
         rooContext.getStore(ExtensionContext.Namespace.GLOBAL)
-                .getOrComputeIfAbsent(
-                        this.getClass(),
-                        key -> {
-                            beforeSuite(rooContext);
-                            return new ExtensionContext.Store.CloseableResource() {
-                                @Override
-                                public void close() throws Throwable {
-                                    afterSuite();
-                                }
-                            };
-                        });
+            .getOrComputeIfAbsent(
+                this.getClass(),
+                key -> {
+                    beforeSuite(rooContext);
+                    return new ExtensionContext.Store.CloseableResource() {
+                        @Override
+                        public void close() throws Throwable {
+                            afterSuite();
+                        }
+                    };
+                });
     }
 
     default void beforeSuite(ExtensionContext context) {

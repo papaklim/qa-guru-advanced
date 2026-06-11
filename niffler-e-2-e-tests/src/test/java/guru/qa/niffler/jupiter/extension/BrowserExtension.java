@@ -31,8 +31,8 @@ public class BrowserExtension implements BeforeEachCallback, AfterEachCallback, 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide()
-                .screenshots(false)
-                .savePageSource(false));
+            .screenshots(false)
+            .savePageSource(false));
     }
 
     @Override
