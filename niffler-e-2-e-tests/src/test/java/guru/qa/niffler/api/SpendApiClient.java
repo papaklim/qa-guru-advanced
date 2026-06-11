@@ -13,6 +13,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -55,12 +56,12 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
-    public SpendJson getSpendById(Integer id) {
+    public Optional<SpendJson> getSpendByIdAndUserName(UUID id, String username) {
         final Response<SpendJson> response;
         try {
-            response = spendApi.getSpendById(id).execute();
+            response = spendApi.getSpendById(id, username).execute();
             assertEquals(200, response.code());
-            return response.body();
+            return Optional.of(response.body());
         } catch (IOException e) {
             throw new AssertionError();
         }
@@ -79,15 +80,16 @@ public class SpendApiClient implements SpendClient {
     }
 
     @Override
-    public void deleteSpend(String userName, List<String> ids) {
-        final Response<Void> response;
+    public void deleteSpend(List<UUID> ids, String userName) {
+        Response<Void> response;
         try {
-            response = spendApi.deleteSpend(userName, ids).execute();
+            response = spendApi.deleteSpend(ids, userName).execute();
             assertEquals(202, response.code());
         } catch (IOException e) {
-            throw new AssertionError();
+            throw new AssertionError(e);
         }
     }
+
 
     @Override
     public CategoryJson createCategory(CategoryJson category) {

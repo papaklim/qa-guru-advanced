@@ -6,6 +6,7 @@ import guru.qa.niffler.model.SpendJson;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface SpendClient {
 
@@ -13,11 +14,11 @@ public interface SpendClient {
 
     SpendJson updateSpend(SpendJson spend);
 
-    SpendJson getSpendById(Integer id);
+    Optional<SpendJson> getSpendByIdAndUserName(UUID id, String username);
 
     List<SpendJson> getAllSpends(String username, CurrencyValues filterCurrency, String from, String to);
 
-    void deleteSpend(String userName, List<String> ids);
+    void deleteSpend(List<UUID> ids, String userName);
 
     CategoryJson createCategory(CategoryJson category);
 

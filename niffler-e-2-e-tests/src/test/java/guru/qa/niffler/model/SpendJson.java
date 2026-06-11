@@ -1,14 +1,11 @@
 package guru.qa.niffler.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
 
 import java.util.Date;
 import java.util.UUID;
-
-import javax.annotation.Nonnull;
 
 public record SpendJson(
     @JsonProperty("id")
@@ -26,8 +23,7 @@ public record SpendJson(
     @JsonProperty("username")
     String username) {
 
-    public static @Nonnull SpendJson fromEntity(@Nonnull
-    SpendEntity entity) {
+    public static SpendJson fromEntity(SpendEntity entity) {
         final CategoryEntity category = entity.getCategory();
         final String username = entity.getUsername();
 
