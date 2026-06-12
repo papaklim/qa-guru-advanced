@@ -30,7 +30,7 @@ enum LocalConfig implements Config {
 
     @Override
     public String authJdbcUrl() {
-        return "jdbc:postgresql://niffler-all-db:5432/niffler-auth";
+        return "jdbc:postgresql://localhost:5432/niffler-auth";
     }
 
     @Override
@@ -40,11 +40,11 @@ enum LocalConfig implements Config {
 
     @Override
     public String userDataJdbcUrl() {
-        return "jdbc:postgresql://niffler-all-db:5432/niffler-userdata";
+        return "jdbc:postgresql://localhost:5432/niffler-userdata";
     }
 
     @Override
     public String currencyJdbcUrl() {
-        return "jdbc:postgresql://niffler-all-db:5432/niffler-currency";
+        return "jdbc:postgresql://localhost:5432/niffler-currency";
     }
 }

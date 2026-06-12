@@ -1,5 +1,6 @@
 buildscript {
     ext {
+        atomikosVersion = '6.0.1'
         junitVersion = '5.13.4'
         allureVersion = '2.30.0'
         selenideVersion = '7.10.1'
@@ -77,11 +78,14 @@ dependencies {
     testImplementation("com.squareup.retrofit2:retrofit:${retrofitVersion}") {
         exclude group: "com.squareup.okhttp3"
     }
-    testImplementation("com.squareup.retrofit2:converter-jackson:${retrofitVersion}") {
+    testImplementation ("com.squareup.retrofit2:converter-jackson:${retrofitVersion}") {
         exclude group: "com.squareup.okhttp3"
     }
     testImplementation "org.springframework.data:spring-data-commons:${springDataCommonsVersion}"
     // DB
+    testImplementation("com.atomikos:transactions-jdbc:${atomikosVersion}")
+    testImplementation "com.atomikos:transactions-hibernate4:${atomikosVersion}:jakarta"
+    testImplementation "com.atomikos:transactions-jta:${atomikosVersion}:jakarta"
     testImplementation "org.springframework:spring-jdbc:${springJdbcVersion}"
     testImplementation "org.postgresql:postgresql:${project.ext.postgresDriverVersion}"
     testImplementation "p6spy:p6spy:${p6spyVersion}"

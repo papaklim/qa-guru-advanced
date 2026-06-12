@@ -1,7 +1,8 @@
-package guru.qa.niffler.model;
+package guru.qa.niffler.model.userdata;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import guru.qa.niffler.data.entity.spend.user.UserEntity;
+import guru.qa.niffler.data.entity.userdata.UserEntity;
+import guru.qa.niffler.model.spend.CurrencyValues;
 import jaxb.userdata.FriendshipStatus;
 
 import java.nio.charset.StandardCharsets;
