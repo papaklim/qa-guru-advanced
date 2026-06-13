@@ -7,7 +7,7 @@ import guru.qa.niffler.model.spend.CategoryJson;
 import guru.qa.niffler.model.spend.CurrencyValues;
 import guru.qa.niffler.model.spend.SpendJson;
 import guru.qa.niffler.model.userdata.UserJson;
-import guru.qa.niffler.service.AuthDbClient;
+import guru.qa.niffler.service.UsersDbClient;
 import guru.qa.niffler.service.SpendDbClient;
 import org.junit.jupiter.api.Test;
 
@@ -24,10 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class JdbcTest {
 
     private final SpendDbClient spendDbClient = new SpendDbClient();
-    private final AuthDbClient authDbClient = new AuthDbClient();
+    private final UsersDbClient usersDbClient = new UsersDbClient();
     private CategoryJson createdCategory;
     private SpendJson createdSpend;
-    private AuthUserJson createdAuthUser;
+    private UserJson createdAuthUser;
     private UserJson createdUserdataUser;
     private final Faker faker = new Faker();
 
@@ -135,14 +135,14 @@ public class JdbcTest {
             null
         );
 
-        createdAuthUser = authDbClient.createAuthUser(authUser, user);
+        createdAuthUser = usersDbClient.createUser(authUser, user);
         createdUserdataUser = user;
 
         assertNotNull(createdAuthUser.id());
 
         // Проверяем, что в обеих базах данные действительно записались
-        Optional<AuthUserJson> authUserInDb = authDbClient.findAuthUserByUsername(username);
-        Optional<UserJson> userdataUserInDb = authDbClient.findUserdataUserByUsername(username);
+        Optional<AuthUserJson> authUserInDb = usersDbClient.findAuthUserByUsername(username);
+        Optional<UserJson> userdataUserInDb = usersDbClient.findUdUserByUsername(username);
 
         assertTrue(authUserInDb.isPresent());
         assertTrue(userdataUserInDb.isPresent());
@@ -180,17 +180,63 @@ public class JdbcTest {
         );
 
         try {
-            authDbClient.createAuthUser(authUser, user);
+            usersDbClient.createUser(authUser, user);
         } catch (Exception e) {
             // Ожидаем ошибку транзакции
             System.out.println("Transaction failed as expected: " + e.getMessage());
         }
 
         // Проверяем, что пользователя нет ни в одной из баз
-        Optional<AuthUserJson> authUserInDb = authDbClient.findAuthUserByUsername(username);
-        Optional<UserJson> userdataUserInDb = authDbClient.findUserdataUserByUsername(username);
+        Optional<AuthUserJson> authUserInDb = usersDbClient.findAuthUserByUsername(username);
+        Optional<UserJson> userdataUserInDb = usersDbClient.findUdUserByUsername(username);
 
         assertFalse(authUserInDb.isPresent());
         assertFalse(userdataUserInDb.isPresent());
+    }
+
+    @Test
+    void successSpringJdbcTransactionTest() {
+        String username = faker.name().username();
+        String firstname = faker.name().firstName();
+        String surname = faker.name().lastName();
+        String fullname = firstname + " " + surname;
+
+        AuthUserJson authUser = new AuthUserJson(
+            null,
+            username,
+            "password",
+            true,
+            true,
+            true,
+            true,
+            List.of(Authority.read, Authority.write)
+        );
+
+        UserJson user = new UserJson(
+            null,
+            username,
+            firstname,
+            surname,
+            fullname,
+            CurrencyValues.RUB,
+            null,
+            null,
+            null
+        );
+
+        createdAuthUser = usersDbClient.createUserSpringJdbc(authUser, user);
+        createdUserdataUser = user;
+
+        assertNotNull(createdAuthUser.id());
+
+        // Проверяем, что в обеих базах данные действительно записались
+        Optional<AuthUserJson> authUserInDb = usersDbClient.findAuthUserByUsernameSpringJdbc(username);
+        Optional<UserJson> userdataUserInDb = usersDbClient.findUdUserByUsernameSpringJdbc(username);
+
+        assertTrue(authUserInDb.isPresent());
+        assertTrue(userdataUserInDb.isPresent());
+
+        assertEquals(username, authUserInDb.get().username());
+        assertEquals(username, userdataUserInDb.get().username());
     }
 }

@@ -9,7 +9,7 @@ buildscript {
         apollographqlVersion = '0.0.2'
         logbackVersion = '1.5.18'
         slf4jVersion = '2.0.17'
-        springJdbcVersion = '6.2.11'
+        springJdbcVersion = '7.0.8'
         springCryptoVersion = '6.5.5'
         p6spyVersion = '3.9.1'
         hibernateVersion = '7.1.1.Final'
