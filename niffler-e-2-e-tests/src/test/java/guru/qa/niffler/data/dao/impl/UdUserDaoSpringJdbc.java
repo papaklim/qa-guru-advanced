@@ -1,6 +1,6 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.data.dao.UdUserDAO;
+import guru.qa.niffler.data.dao.UdUserDao;
 import guru.qa.niffler.data.entity.userdata.UserEntity;
 import guru.qa.niffler.data.mapper.UserEntityRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,11 +12,11 @@ import java.sql.PreparedStatement;
 import java.util.Optional;
 import java.util.UUID;
 
-public class UdUserDAOSpringJdbc implements UdUserDAO {
+public class UdUserDaoSpringJdbc implements UdUserDao {
 
     private final DataSource dataSource;
 
-    public UdUserDAOSpringJdbc(DataSource dataSource) {
+    public UdUserDaoSpringJdbc(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 

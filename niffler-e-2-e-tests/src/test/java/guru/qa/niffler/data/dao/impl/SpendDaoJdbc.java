@@ -1,6 +1,6 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.data.dao.SpendDAO;
+import guru.qa.niffler.data.dao.SpendDao;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
 import guru.qa.niffler.model.spend.CurrencyValues;
@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SpendDAOJdbc implements SpendDAO {
+public class SpendDaoJdbc implements SpendDao {
 
     private final Connection connection;
 
-    public SpendDAOJdbc(Connection connection) {
+    public SpendDaoJdbc(Connection connection) {
         this.connection = connection;
     }
 
@@ -71,7 +71,7 @@ public class SpendDAOJdbc implements SpendDAO {
                     se.setAmount(rs.getDouble("amount"));
                     se.setDescription(rs.getString("description"));
                     se.setCategory(
-                        new CategoryDAOJdbc(connection).findCategoryById(rs.getObject("category_id", UUID.class)).get());
+                        new CategoryDaoJdbc(connection).findCategoryById(rs.getObject("category_id", UUID.class)).get());
                     return Optional.of(se);
                 } else {
                     return Optional.empty();

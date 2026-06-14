@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface SpendDAO {
+public interface SpendDao {
     SpendEntity create(SpendEntity spend);
 
     Optional<SpendEntity> findSpendByIdAndUserName(UUID id, String username);

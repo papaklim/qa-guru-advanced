@@ -1,8 +1,7 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.data.dao.AuthUserDAO;
+import guru.qa.niffler.data.dao.AuthUserDao;
 import guru.qa.niffler.data.entity.auth.AuthUserEntity;
-import guru.qa.niffler.data.entity.auth.AuthorityEntity;
 import guru.qa.niffler.data.mapper.AuthUserEntityRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -14,10 +13,10 @@ import java.sql.Statement;
 import java.util.Optional;
 import java.util.UUID;
 
-public class AuthUserDAOSpringJdbc implements AuthUserDAO {
+public class AuthUserDaoSpringJdbc implements AuthUserDao {
     private final DataSource dataSource;
 
-    public AuthUserDAOSpringJdbc(DataSource dataSource) {
+    public AuthUserDaoSpringJdbc(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -41,24 +40,7 @@ public class AuthUserDAOSpringJdbc implements AuthUserDAO {
             keyHolder);
         final UUID generatedKey = (UUID) keyHolder.getKeys().get("id");
         authUser.setId(generatedKey);
-        if (authUser.getAuthorities() != null && !authUser.getAuthorities().isEmpty()) {
-            for (AuthorityEntity authority : authUser.getAuthorities()) {
-                KeyHolder authKeyHolder = new GeneratedKeyHolder();
-                jdbcTemplate.update(con -> {
-                    PreparedStatement ps = con.prepareStatement(
-                        "INSERT INTO \"authority\" (user_id, authority) VALUES (?, ?)",
-                        Statement.RETURN_GENERATED_KEYS
-                    );
-                    ps.setObject(1, generatedKey);
-                    ps.setString(2, authority.getAuthority().name());
-                    return ps;
-                }, authKeyHolder);
 
-                final UUID authorityId = (UUID) authKeyHolder.getKeys().get("id");
-                authority.setId(authorityId);
-                authority.setUser(generatedKey);
-            }
-        }
         return authUser;
     }
 

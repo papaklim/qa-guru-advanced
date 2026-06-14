@@ -1,11 +1,8 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.data.dao.AuthUserDAO;
+import guru.qa.niffler.data.dao.AuthUserDao;
 import guru.qa.niffler.data.entity.auth.AuthUserEntity;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
-
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,12 +14,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class AuthUserDAOJdbc implements AuthUserDAO {
+public class AuthUserDaoJdbc implements AuthUserDao {
     private final Connection connection;
-    private static final PasswordEncoder pe = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
 
-    public AuthUserDAOJdbc(Connection connection) {
+    public AuthUserDaoJdbc(Connection connection) {
         this.connection = connection;
     }
 
@@ -49,25 +45,6 @@ public class AuthUserDAOJdbc implements AuthUserDAO {
                 } else throw new SQLException("Can't find id in ResultSet");
             }
             authUser.setId(generatedKey);
-
-            if (authUser.getAuthorities() != null && !authUser.getAuthorities().isEmpty()) {
-                try (PreparedStatement authorityPs = connection.prepareStatement(
-                    "INSERT INTO \"authority\" (user_id, authority) VALUES (?, ?)",
-                    Statement.RETURN_GENERATED_KEYS)) {
-                    for (AuthorityEntity authority : authUser.getAuthorities()) {
-                        authorityPs.setObject(1, generatedKey);
-                        authorityPs.setString(2, authority.getAuthority().name());
-                        authorityPs.executeUpdate();
-
-                        try (ResultSet rs = authorityPs.getGeneratedKeys()) {
-                            if (rs.next()) {
-                                authority.setId(rs.getObject("id", UUID.class));
-                            }
-                        }
-                        authority.setUser(generatedKey);
-                    }
-                }
-            }
 
             return authUser;
 
@@ -165,7 +142,7 @@ public class AuthUserDAOJdbc implements AuthUserDAO {
                 while (rs.next()) {
                     AuthorityEntity ae = new AuthorityEntity();
                     ae.setId(rs.getObject("id", UUID.class));
-                    ae.setUser(rs.getObject("user_id", UUID.class));
+                    ae.setUserId(rs.getObject("user_id", UUID.class));
                     ae.setAuthority(guru.qa.niffler.model.auth.Authority.valueOf(rs.getString("authority")));
                     authorities.add(ae);
                 }

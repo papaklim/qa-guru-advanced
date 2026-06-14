@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 
-public interface CategoryDAO {
+public interface CategoryDao {
     CategoryEntity create(CategoryEntity category);
 
     Optional<CategoryEntity> findCategoryById(UUID id);

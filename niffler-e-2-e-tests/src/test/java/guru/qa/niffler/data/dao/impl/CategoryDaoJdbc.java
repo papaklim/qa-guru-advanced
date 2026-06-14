@@ -1,6 +1,6 @@
 package guru.qa.niffler.data.dao.impl;
 
-import guru.qa.niffler.data.dao.CategoryDAO;
+import guru.qa.niffler.data.dao.CategoryDao;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 
 import java.sql.Connection;
@@ -13,10 +13,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class CategoryDAOJdbc implements CategoryDAO {
+public class CategoryDaoJdbc implements CategoryDao {
     private final Connection connection;
 
-    public CategoryDAOJdbc(Connection connection) {
+    public CategoryDaoJdbc(Connection connection) {
         this.connection = connection;
     }
 

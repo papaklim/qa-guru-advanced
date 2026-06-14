@@ -12,13 +12,13 @@ import java.util.UUID;
 @Setter
 public class AuthorityEntity implements Serializable {
     private UUID id;
-    private UUID user;
+    private UUID userId;
     private Authority authority;
 
     public static AuthorityEntity fromJson(AuthorityJson json) {
         AuthorityEntity ae = new AuthorityEntity();
         ae.setId(json.id());
-        ae.setUser(json.userId());
+        ae.setUserId(json.userId());
         ae.setAuthority(json.authority());
         return ae;
     }
