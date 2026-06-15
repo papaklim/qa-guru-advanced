@@ -6,6 +6,7 @@ import guru.qa.niffler.data.dao.impl.CategoryDaoJdbc;
 import guru.qa.niffler.data.dao.impl.SpendDaoJdbc;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
+import guru.qa.niffler.data.tpl.JdbcTransactionTemplate;
 import guru.qa.niffler.model.spend.CategoryJson;
 import guru.qa.niffler.model.spend.CurrencyValues;
 import guru.qa.niffler.model.spend.SpendJson;
@@ -14,20 +15,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static guru.qa.niffler.data.Databases.transaction;
-
 public class SpendDbClient implements SpendClient {
     private static final Config CFG = Config.getInstance();
 
+    private final JdbcTransactionTemplate jdbcTxTemplate = new JdbcTransactionTemplate(CFG.spendJdbcUrl());
+
+    private final CategoryDaoJdbc categoryDaoJdbc = new CategoryDaoJdbc();
+    private final SpendDaoJdbc spendDaoJdbc = new SpendDaoJdbc();
+
     public SpendJson createSpend(SpendJson spend) {
-        return transaction(connection -> {
-            SpendEntity spendEntity = SpendEntity.fromJson(spend);
-            if (spendEntity.getCategory().getId() == null) {
-                CategoryEntity categoryEntity = new CategoryDaoJdbc(connection).create(spendEntity.getCategory());
-                spendEntity.setCategory(categoryEntity);
+        return jdbcTxTemplate.execute(() -> {
+                SpendEntity spendEntity = SpendEntity.fromJson(spend);
+                if (spendEntity.getCategory().getId() == null) {
+                    CategoryEntity categoryEntity = categoryDaoJdbc.create(spendEntity.getCategory());
+                    spendEntity.setCategory(categoryEntity);
+                }
+                return SpendJson.fromEntity(spendDaoJdbc.create(spendEntity));
             }
-            return SpendJson.fromEntity(new SpendDaoJdbc(connection).create(spendEntity));
-        }, CFG.spendJdbcUrl());
+        );
     }
 
     @Override
@@ -37,11 +42,8 @@ public class SpendDbClient implements SpendClient {
 
     @Override
     public Optional<SpendJson> getSpendByIdAndUserName(UUID id, String username) {
-        return transaction(connection -> {
-                return new SpendDaoJdbc(connection).findSpendByIdAndUserName(id, username)
-                    .map(SpendJson::fromEntity);
-            }, CFG.spendJdbcUrl()
-        );
+        return jdbcTxTemplate.execute(() -> spendDaoJdbc.findSpendByIdAndUserName(id, username)
+            .map(SpendJson::fromEntity));
     }
 
     @Override
@@ -51,28 +53,30 @@ public class SpendDbClient implements SpendClient {
 
     @Override
     public void deleteSpend(List<UUID> ids, String userName) {
-        transaction(connection -> {
-                new SpendDaoJdbc(connection).deleteSpend(ids, userName);
-            }, CFG.spendJdbcUrl()
+        jdbcTxTemplate.execute(() -> {
+                spendDaoJdbc.deleteSpend(ids, userName);
+                return null;
+            }
         );
     }
 
+
     public List<SpendJson> findAllSpendsByUsername(String username) {
-        return transaction(connection -> {
-                return new SpendDaoJdbc(connection).findAllByUsername(username)
+        return jdbcTxTemplate.execute(() -> {
+                return spendDaoJdbc.findAllByUsername(username)
                     .stream()
                     .map(SpendJson::fromEntity)
                     .toList();
-            }, CFG.spendJdbcUrl()
+            }
         );
     }
 
 
     public CategoryJson createCategory(CategoryJson category) {
-        return transaction(connection -> {
-                CategoryEntity categoryEntity = new CategoryDaoJdbc(connection).create(CategoryEntity.fromJson(category));
+        return jdbcTxTemplate.execute(() -> {
+                CategoryEntity categoryEntity = categoryDaoJdbc.create(CategoryEntity.fromJson(category));
                 return CategoryJson.fromEntity(categoryEntity);
-            }, CFG.spendJdbcUrl()
+            }
         );
     }
 
@@ -88,32 +92,25 @@ public class SpendDbClient implements SpendClient {
 
     @Override
     public Optional<CategoryJson> findCategoryByNameAndUsername(String categoryName, String username) {
-        return transaction(connection -> {
-            return findCategoryByUsernameAndCategoryName(username, categoryName);
-        }, CFG.spendJdbcUrl());
+        return jdbcTxTemplate.execute(() -> findCategoryByUsernameAndCategoryName(username, categoryName));
     }
 
     public Optional<CategoryJson> findCategoryById(UUID id) {
-        return transaction(connection -> {
-            return new CategoryDaoJdbc(connection).findCategoryById(id).map(CategoryJson::fromEntity);
-        }, CFG.spendJdbcUrl());
+        return jdbcTxTemplate.execute(() -> categoryDaoJdbc.findCategoryById(id).map(CategoryJson::fromEntity));
     }
 
     public Optional<CategoryJson> findCategoryByUsernameAndCategoryName(String username, String categoryName) {
-        return transaction(connection -> {
-            return new CategoryDaoJdbc(connection).findCategoryByUsernameAndCategoryName(username, categoryName).map(CategoryJson::fromEntity);
-        }, CFG.spendJdbcUrl());
+        return jdbcTxTemplate.execute(() -> categoryDaoJdbc.findCategoryByUsernameAndCategoryName(username, categoryName).map(CategoryJson::fromEntity));
     }
 
     public List<CategoryJson> findAllCategoriesByUsername(String username) {
-        return transaction(connection -> {
-            return new CategoryDaoJdbc(connection).findAllByUsername(username).stream().map(CategoryJson::fromEntity).toList();
-        }, CFG.spendJdbcUrl());
+        return jdbcTxTemplate.execute(() -> categoryDaoJdbc.findAllByUsername(username).stream().map(CategoryJson::fromEntity).toList());
     }
 
     public void deleteCategory(CategoryJson category) {
-        transaction(connection -> {
-            new CategoryDaoJdbc(connection).deleteCategory(CategoryEntity.fromJson(category));
-        }, CFG.spendJdbcUrl());
+        jdbcTxTemplate.execute(() -> {
+            categoryDaoJdbc.deleteCategory(CategoryEntity.fromJson(category));
+            return null;
+        });
     }
 }

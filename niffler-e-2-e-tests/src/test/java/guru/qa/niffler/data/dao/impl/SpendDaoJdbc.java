@@ -1,11 +1,11 @@
 package guru.qa.niffler.data.dao.impl;
 
+import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.SpendDao;
 import guru.qa.niffler.data.entity.spend.CategoryEntity;
 import guru.qa.niffler.data.entity.spend.SpendEntity;
 import guru.qa.niffler.model.spend.CurrencyValues;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,17 +15,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static guru.qa.niffler.data.tpl.Connections.holder;
+
 public class SpendDaoJdbc implements SpendDao {
+    private static final Config CFG = Config.getInstance();
 
-    private final Connection connection;
-
-    public SpendDaoJdbc(Connection connection) {
-        this.connection = connection;
-    }
-
-    @Override
+ @Override
     public SpendEntity create(SpendEntity spend) {
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
             "INSERT INTO spend (username, spend_date, currency, amount, description, category_id)"
                 + "VALUES (?, ?, ?, ?, ?, ?)",
             Statement.RETURN_GENERATED_KEYS)) {
@@ -54,7 +51,7 @@ public class SpendDaoJdbc implements SpendDao {
 
     @Override
     public Optional<SpendEntity> findSpendByIdAndUserName(UUID id, String username) {
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
             "SELECT * FROM spend WHERE id = ? AND username = ?")) {
             ps.setObject(1, id);
             ps.setObject(2, username);
@@ -71,7 +68,7 @@ public class SpendDaoJdbc implements SpendDao {
                     se.setAmount(rs.getDouble("amount"));
                     se.setDescription(rs.getString("description"));
                     se.setCategory(
-                        new CategoryDaoJdbc(connection).findCategoryById(rs.getObject("category_id", UUID.class)).get());
+                        new CategoryDaoJdbc().findCategoryById(rs.getObject("category_id", UUID.class)).get());
                     return Optional.of(se);
                 } else {
                     return Optional.empty();
@@ -91,7 +88,7 @@ public class SpendDaoJdbc implements SpendDao {
                 JOIN category c ON s.category_id = c.id
                 WHERE s.username = ?
             """;
-        try (PreparedStatement ps = connection.prepareStatement(query)) {
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(query)) {
             ps.setString(1, username);
             ps.execute();
 
@@ -124,7 +121,7 @@ public class SpendDaoJdbc implements SpendDao {
 
     @Override
     public void deleteSpend(List<UUID> spends, String username) {
-        try (PreparedStatement ps = connection.prepareStatement(
+        try (PreparedStatement ps = holder(CFG.spendJdbcUrl()).connection().prepareStatement(
             "DELETE FROM spend WHERE id = ? AND username = ?")) {
             for (UUID spend : spends) {
                 ps.setObject(1, spend);

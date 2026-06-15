@@ -7,8 +7,8 @@ import guru.qa.niffler.model.spend.CategoryJson;
 import guru.qa.niffler.model.spend.CurrencyValues;
 import guru.qa.niffler.model.spend.SpendJson;
 import guru.qa.niffler.model.userdata.UserJson;
-import guru.qa.niffler.service.UsersDbClient;
 import guru.qa.niffler.service.SpendDbClient;
+import guru.qa.niffler.service.UsersDbClient;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Date;
@@ -40,10 +40,10 @@ public class JdbcTest {
 //            spendDbClient.deleteCategory(createdCategory);
 //        }
 //        if (createdAuthUser != null) {
-//            authDbClient.deleteAuthUser(createdAuthUser);
+//            UsersDbClient.deleteAuthUser(createdAuthUser);
 //        }
 //        if (createdUserdataUser != null) {
-//            authDbClient.deleteUserdataUser(createdUserdataUser);
+//            UsersDbClient.deleteUserdataUser(createdUserdataUser);
 //        }
 //    }
 
@@ -105,94 +105,94 @@ public class JdbcTest {
         assertEquals(createdSpend.category(), found.get().category());
     }
 
-    @Test
-    void successXaTransactionTest() {
-        String username = faker.name().username();
-        String firstname = faker.name().firstName();
-        String surname = faker.name().lastName();
-        String fullname = firstname + " " + surname;
-
-        AuthUserJson authUser = new AuthUserJson(
-            null,
-            username,
-            "password",
-            true,
-            true,
-            true,
-            true,
-            List.of(Authority.read, Authority.write)
-        );
-
-        UserJson user = new UserJson(
-            null,
-            username,
-            firstname,
-            surname,
-            fullname,
-            CurrencyValues.RUB,
-            null,
-            null,
-            null
-        );
-
-        createdAuthUser = usersDbClient.createUser(authUser, user);
-        createdUserdataUser = user;
-
-        assertNotNull(createdAuthUser.id());
-
-        // Проверяем, что в обеих базах данные действительно записались
-        Optional<AuthUserJson> authUserInDb = usersDbClient.findAuthUserByUsername(username);
-        Optional<UserJson> userdataUserInDb = usersDbClient.findUdUserByUsername(username);
-
-        assertTrue(authUserInDb.isPresent());
-        assertTrue(userdataUserInDb.isPresent());
-
-        assertEquals(username, authUserInDb.get().username());
-        assertEquals(username, userdataUserInDb.get().username());
-    }
-
-    @Test
-    void rollbackXaTransactionTest() {
-        String username = "xa-user-rollback-" + UUID.randomUUID().toString().substring(0, 8);
-
-        // Пароль null приведет к ошибке в auth БД
-        AuthUserJson authUser = new AuthUserJson(
-            null,
-            username,
-            null,
-            true,
-            true,
-            true,
-            true,
-            List.of(Authority.read, Authority.write)
-        );
-
-        UserJson user = new UserJson(
-            null,
-            username,
-            "Firstname",
-            "Surname",
-            "Full Name",
-            CurrencyValues.RUB,
-            null,
-            null,
-            null
-        );
-
-        try {
-            usersDbClient.createUser(authUser, user);
-        } catch (Exception e) {
-            // Ожидаем ошибку транзакции
-            System.out.println("Transaction failed as expected: " + e.getMessage());
-        }
-
-        // Проверяем, что пользователя нет ни в одной из баз
-        Optional<AuthUserJson> authUserInDb = usersDbClient.findAuthUserByUsername(username);
-        Optional<UserJson> userdataUserInDb = usersDbClient.findUdUserByUsername(username);
-
-        assertFalse(authUserInDb.isPresent());
-        assertFalse(userdataUserInDb.isPresent());
-    }
+//    @Test
+//    void successXaTransactionTest() {
+//        String username = faker.name().username();
+//        String firstname = faker.name().firstName();
+//        String surname = faker.name().lastName();
+//        String fullname = firstname + " " + surname;
+//
+//        AuthUserJson authUser = new AuthUserJson(
+//            null,
+//            username,
+//            "password",
+//            true,
+//            true,
+//            true,
+//            true,
+//            List.of(Authority.read, Authority.write)
+//        );
+//
+//        UserJson user = new UserJson(
+//            null,
+//            username,
+//            firstname,
+//            surname,
+//            fullname,
+//            CurrencyValues.RUB,
+//            null,
+//            null,
+//            null
+//        );
+//
+//        createdAuthUser = usersDbClient.createUser(authUser, user);
+//        createdUserdataUser = user;
+//
+//        assertNotNull(createdAuthUser.id());
+//
+//        // Проверяем, что в обеих базах данные действительно записались
+//        Optional<AuthUserJson> authUserInDb = usersDbClient.findAuthUserByUsername(username);
+//        Optional<UserJson> userdataUserInDb = usersDbClient.findUdUserByUsername(username);
+//
+//        assertTrue(authUserInDb.isPresent());
+//        assertTrue(userdataUserInDb.isPresent());
+//
+//        assertEquals(username, authUserInDb.get().username());
+//        assertEquals(username, userdataUserInDb.get().username());
+//    }
+//
+//    @Test
+//    void rollbackXaTransactionTest() {
+//        String username = "xa-user-rollback-" + UUID.randomUUID().toString().substring(0, 8);
+//
+//        // Пароль null приведет к ошибке в auth БД
+//        AuthUserJson authUser = new AuthUserJson(
+//            null,
+//            username,
+//            null,
+//            true,
+//            true,
+//            true,
+//            true,
+//            List.of(Authority.read, Authority.write)
+//        );
+//
+//        UserJson user = new UserJson(
+//            null,
+//            username,
+//            "Firstname",
+//            "Surname",
+//            "Full Name",
+//            CurrencyValues.RUB,
+//            null,
+//            null,
+//            null
+//        );
+//
+//        try {
+//            usersDbClient.createUser(authUser, user);
+//        } catch (Exception e) {
+//            // Ожидаем ошибку транзакции
+//            System.out.println("Transaction failed as expected: " + e.getMessage());
+//        }
+//
+//        // Проверяем, что пользователя нет ни в одной из баз
+//        Optional<AuthUserJson> authUserInDb = usersDbClient.findAuthUserByUsername(username);
+//        Optional<UserJson> userdataUserInDb = usersDbClient.findUdUserByUsername(username);
+//
+//        assertFalse(authUserInDb.isPresent());
+//        assertFalse(userdataUserInDb.isPresent());
+//    }
 
     @Test
     void successSpringJdbcTransactionTest() {

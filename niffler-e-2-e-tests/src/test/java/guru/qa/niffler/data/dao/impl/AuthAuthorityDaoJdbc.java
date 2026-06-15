@@ -1,37 +1,31 @@
 package guru.qa.niffler.data.dao.impl;
 
+import guru.qa.niffler.config.Config;
 import guru.qa.niffler.data.dao.AuthAuthorityDao;
 import guru.qa.niffler.data.entity.auth.AuthorityEntity;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.JdbcTemplate;
 
-import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
-    private final DataSource dataSource;
+import static guru.qa.niffler.data.tpl.Connections.holder;
 
-    public AuthAuthorityDaoJdbc(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+public class AuthAuthorityDaoJdbc implements AuthAuthorityDao {
+    private static final Config CFG = Config.getInstance();
 
     @Override
     public void create(AuthorityEntity... authority) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.batchUpdate("INSERT INTO authority (user_id, authority) " + "VALUES (?, ?)",
-            new BatchPreparedStatementSetter() {
-                @Override
-                public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    ps.setObject(1, authority[i].getUserId());
-                    ps.setString(2, authority[i].getAuthority().name());
-                }
-
-                @Override
-                public int getBatchSize() {
-                    return authority.length;
-                }
+        try (PreparedStatement ps = holder(CFG.authJdbcUrl()).connection().prepareStatement(
+            "INSERT INTO authority (user_id, authority) " + "VALUES (?, ?)",
+            PreparedStatement.RETURN_GENERATED_KEYS)) {
+            for (AuthorityEntity a : authority) {
+                ps.setObject(1, a.getUserId());
+                ps.setString(2, a.getAuthority().name());
+                ps.addBatch();
+                ps.clearParameters();
             }
-        );
+            ps.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
